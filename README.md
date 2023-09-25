@@ -1,4 +1,6 @@
-# Sage Jiang
+# ECE444(2023 Fall) - Lab 1
+
+Assignment Submitted by: Sage Jiang
 
 # Info
 this repo is a clone of
