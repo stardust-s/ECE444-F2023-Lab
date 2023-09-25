@@ -17,7 +17,22 @@ app.config['SECRET_KEY'] = sha256("ECE444".encode('utf-8')).hexdigest()
 
 class NameForm(FlaskForm):
     name = StringField("What is your name?", validators=[DataRequired()])
+    email = StringField("What is your UofT email address?", validators=[Email()])
     submit = SubmitField("Submit")
+
+def email_is_uoft(email):
+    uoft_email_domains = [
+        "mail.utoronto.ca",
+        "utoronto.ca",
+        "ece.utoronto.ca"
+    ]
+    domain = email.split('@')[1]
+    for entry in uoft_email_domains:
+        if domain == entry:
+            return True
+        
+    return False
+
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -30,8 +45,17 @@ def index():
             flash("Looks like you have changed your name!")
         session['name'] = name
 
+        ## process email
+        old_email = session.get('email')
+        email = form.email.data
+        if old_email is not None and old_email != email:
+            flash("Looks like you have changed your email!")
+        session['email'] = email
+
+        session['is_uoft'] = email_is_uoft(email)
+
         return redirect(url_for('index'))
-    return render_template('index.html', form = form, name = session.get('name'))
+    return render_template('index.html', form = form, name = session.get('name'), email = session.get('email'), is_uoft = session.get('is_uoft'))
 
 @app.route("/user/<name>")
 def user(name):
